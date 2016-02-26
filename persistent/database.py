@@ -71,8 +71,6 @@ def get(object_id):
     if not row:
         raise NotFoundError('object not found: %s' % object_id)
 
-    print('get row',row)
-
     obj = unpickle(row[0])
     obj.mark_clean()
     return obj
