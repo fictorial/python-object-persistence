@@ -1,0 +1,7 @@
+shortuuid
+jsonpickle
+ujson
+cachetools
+keypath
+pytest
+pytest-cov
