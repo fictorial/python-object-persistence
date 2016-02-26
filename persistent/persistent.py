@@ -80,6 +80,7 @@ class Persistent:
 
         return self._save()
 
+
     def _save(self):
         to_save = self._with_references()
 
@@ -124,6 +125,7 @@ class Persistent:
                 raise UniquenessError(index_name)
 
             raise
+
 
     def delete(self, use_transaction=True):
         sql = "DELETE FROM objects WHERE json_extract(json, '$.id')=?"
