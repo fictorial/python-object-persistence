@@ -64,7 +64,7 @@ class Persistent:
             if referenced:
                 if isinstance(referenced, Persistent):
                     if referenced.is_new:
-                        referenced.save()
+                        referenced.save(False)
                     setattr(obj, attr, referenced.id)
 
         return obj
