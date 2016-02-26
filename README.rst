@@ -9,7 +9,7 @@ type with all attributes restored
 Concepts
 --------
 
-- Your regular Python objects are serialized with 
+- Your regular Python objects are serialized with
   `jsonpickle <http://jsonpickle.github.io>`_
 - Serialized objects are stored in a `SQLite3 <http://sqlite.org>`_ database
 - Each object must have a globally (across all class types) unique identifier
@@ -128,10 +128,10 @@ Inter-Object References
 A persistent object may refer to another persistent object by setting an
 attribute to the referenced object as in any other Python program. By default,
 when the source object is saved, a *copy* of referenced objects is saved with
-it. 
+it.
 
 If you would prefer to save an explicit reference, add the source object
-attributes that contain references to the source class's ``references`` set. On
+attributes that contain references to the source class's ``references``. On
 save, the attributes on the source object are stored as the referenced object's
 ``id``. On load, the source object's ``references`` are scanned and the referenced
 objects loaded, replacing the corresponding attribute on the source object.
@@ -173,7 +173,7 @@ The system automatically adds ``created_at`` and ``updated_at`` which are
 Caching
 -------
 
-A least-recently-used (LRU) cache to hold the latest copy of each object by
+A least-recently-used (LRU) cache is used to hold the latest copy of each object by
 object ``id``.  On a cache miss, the desired object is loaded from the database
 and placed into the cache.  If more than N objects (by default, N=1000) objects
 are stored in the cache, the least-recently-used object is evicted from the
@@ -206,8 +206,8 @@ paths", create a "unique index":
         # Fails as y is non-unique for ['a', 'b.c']
 
 Note that such an index is scoped to the same object class.  If you wish to
-make the index span all  through the object cache, pass ``global_scope=True`` to
-``add_index``.
+make the index span all persistent objects stored, pass ``global_scope=True``
+to ``add_index``.
 
 By default, an index has a generated name which is returned by ``add_index``.
 
@@ -280,6 +280,8 @@ Sorting
     q.ascending(key_path)
     q.descending(key_path)
 
+These can be called multiple times to sort on multiple key paths.
+
 Pagination
 ~~~~~~~~~~
 
@@ -296,6 +298,8 @@ Running the Query
     objs = q.find()
     obj = q.first()
     n = q.count()
+
+``find`` and ``first`` return ``None`` if no object(s) were found.
 
 AND or OR Queries
 ~~~~~~~~~~~~~~~~~
@@ -314,6 +318,8 @@ To create an *OR* query, use ``OrQuery``:
 
     objs = q.find()
 
+You may pass an arbitrary number of queries to an ``OrQuery``.
+
 Debugging
 ---------
 
@@ -331,3 +337,5 @@ Testing
 Run ``make test`` to run the test suite with `pytest <http://pytest.org/latest/>`_ including coverage reporting.
 
 I aim for 100% code coverage in tests.  See tests.py.
+
+When Python's standard library version of SQLite3 is updated, I will include Tox reports here.
