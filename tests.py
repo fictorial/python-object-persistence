@@ -813,3 +813,61 @@ def test_transaction_delete():
     assert persistent.get(a1.id).id == a1.id
     with pytest.raises(persistent.NotFoundError):
         persistent.get(a0.id)
+
+
+def test_query_matches_query():
+    persistent.connect(debug=True)
+    a = A()
+    a.foo = 1
+    a.save()
+    # b0 references a
+    b0 = B()
+    b0.foo = 2
+    b0.ref0 = a
+    b0.save()
+    # No reference for b1
+    b1 = B()
+    b1.foo = 2
+    b1.save()
+    # Find all As where foo==1
+    qa = persistent.Query(A)
+    qa.equal_to('foo', 1)
+    # Find all Bs that have a reference to any
+    # of the objects matched by query qa
+    qb = persistent.Query(B)
+    qb.matches_query('ref0', qa)
+    objs = qb.find()
+    assert len(objs) == 1
+    assert objs[0].id == b0.id
+
+
+def test_query_does_not_match_query():
+    persistent.connect(debug=True)
+    a = A()
+    a.foo = 1
+    a.save()
+    a1 = A()
+    a1.foo = 2
+    a1.save()
+    # b0 references a
+    b0 = B()
+    b0.foo = 2
+    b0.ref0 = a
+    b0.save()
+    # No reference for b1
+    b1 = B()
+    b1.foo = 2
+    b1.save()
+    # Find all As where foo==1
+    qa = persistent.Query(A)
+    qa.equal_to('foo', 1)
+    # Find all Bs that do not have a reference to any
+    # of the objects matched by query qa
+    no_ref = persistent.Query(B)
+    no_ref.does_not_exist('ref0')
+    in_qa = persistent.Query(B)
+    in_qa.does_not_match_query('ref0', qa)
+    q = persistent.OrQuery(no_ref, in_qa)
+    objs = q.find()
+    assert len(objs) == 1
+    assert objs[0].id == b1.id

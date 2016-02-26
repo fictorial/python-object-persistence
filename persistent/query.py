@@ -168,6 +168,42 @@ class Query:
         return self
 
 
+    def matches_query(self, key_path, query):
+        """
+        An object whose ``id`` matches any of the objects
+        in the result set of ``query`` is included in this
+        query's result set.
+
+        The value at ``key_path`` is thus a reference which
+        is stored as the ``id`` of the referenced object.
+        """
+
+        objs = query.find()
+        if not objs:
+            return self._add_condition(key_path, 'IN', [])
+
+        ids = [obj.id for obj in objs]
+        return self.contained_in(key_path, ids)
+
+
+    def does_not_match_query(self, key_path, query):
+        """
+        An object whose ``id`` does not match any of the objects
+        in the result set of ``query`` is included in this
+        query's result set.
+
+        The value at ``key_path`` is thus a reference which
+        is stored as the ``id`` of the referenced object.
+        """
+
+        objs = query.find()
+        if not objs:
+            return self._add_condition(key_path, 'IN', [])
+
+        ids = [obj.id for obj in objs]
+        return self.not_contained_in(key_path, ids)
+
+
     def ascending(self, key_path):
         if self._sort is None:
             self._sort = []
