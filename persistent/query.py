@@ -4,6 +4,7 @@ import ujson as json
 import keypath
 
 from . import database
+from .persistent import Persistent
 
 
 def _extract(key_path):
@@ -252,6 +253,8 @@ class Query:
 
                 if type(operand) in [tuple, list]:
                     values.extend(operand)
+                elif isinstance(operand, Persistent):
+                    values.append(operand.id)
                 else:
                     values.append(operand)
             else:
