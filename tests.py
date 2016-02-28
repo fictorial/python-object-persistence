@@ -1,15 +1,19 @@
 import os
 import sqlite3
+from datetime import datetime, timedelta
 
 import pytest
 
 import persistent
 
+
 class A(persistent.Persistent):
     pass
 
+
 class B(persistent.Persistent):
     references = [ 'ref0' ]
+
 
 class C(persistent.Persistent):
     references = [ 'ref0', 'ref1' ]
@@ -815,6 +819,19 @@ def test_transaction_delete():
         persistent.get(a0.id)
 
 
+def test_query_ref():
+    persistent.connect(debug=True)
+    a = A()
+    a.foo = 1
+    a.save()
+    b = B()
+    b.ref0 = a
+    b.save()
+    q = persistent.Query(B)
+    q.equal_to('ref0', a)
+    assert q.count() == 1
+
+
 def test_query_matches_query():
     persistent.connect(debug=True)
     a = A()
@@ -871,3 +888,21 @@ def test_query_does_not_match_query():
     objs = q.find()
     assert len(objs) == 1
     assert objs[0].id == b1.id
+
+
+def test_query_dates():
+    # isodatetimehandler stores datetime objects
+    # as ISO-8601 formatted text. Thus, we can use
+    # regular SQL comparisons on key paths storing
+    # datetimes in our queries.
+    persistent.connect(debug=True)
+    a0 = A()
+    a0.foo = 1
+    a0.a_date = datetime.utcnow() - timedelta(hours=1)
+    a0.save()
+    a1 = A()
+    a1.foo = 2
+    a1.a_date = datetime.utcnow() - timedelta(hours=1, minutes=1)
+    a1.save()
+    assert persistent.Query(A).less_than('a_date', datetime.utcnow()).count() == 2
+

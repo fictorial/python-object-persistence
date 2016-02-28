@@ -8,7 +8,7 @@ with open('LICENSE') as f:
 
 setup(
   name='python-object-persistence',
-  version='0.9.4',
+  version='0.9.5',
   description='Easily save, load, query your Python objects with SQLite3.',
   long_description=readme,
   author='Brian Hammond',

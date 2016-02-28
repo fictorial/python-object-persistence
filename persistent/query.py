@@ -1,4 +1,5 @@
 import re
+from datetime import datetime
 
 import ujson as json
 import keypath
@@ -242,6 +243,9 @@ class Query:
         for key_path, operator, operand, bind_type, \
             value_transformer in self._where:
 
+            if isinstance(operand, datetime):
+                key_path += '.iso'
+
             key_path = _extract(key_path)
 
             if value_transformer:
@@ -255,6 +259,8 @@ class Query:
                     values.extend(operand)
                 elif isinstance(operand, Persistent):
                     values.append(operand.id)
+                elif isinstance(operand, datetime):
+                    values.append(operand.isoformat())
                 else:
                     values.append(operand)
             else:
